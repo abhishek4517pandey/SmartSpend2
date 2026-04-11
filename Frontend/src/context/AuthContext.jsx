@@ -29,7 +29,12 @@ export const AuthProvider = ({ children }) => {
   }, [user]);
 
   const login = (userData, tokenValue) => {
-    setUser(userData);
+    // Ensure profilePicture is preserved
+    const userWithPicture = {
+      ...userData,
+      profilePicture: userData.profilePicture || null
+    };
+    setUser(userWithPicture);
     setToken(tokenValue);
   };
 
@@ -39,7 +44,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout }}>
+    <AuthContext.Provider value={{ user, token, login, logout, setUser }}>
       {children}
     </AuthContext.Provider>
   );

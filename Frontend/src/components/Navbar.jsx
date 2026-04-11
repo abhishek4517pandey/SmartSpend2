@@ -38,6 +38,10 @@ const Navbar = ({ theme, toggleTheme }) => {
   }, [user]);
 
   const getAvatarUrl = () => {
+    // Priority: Google profile picture > uploaded avatar > generated avatar
+    if (user?.profilePicture) {
+      return user.profilePicture;
+    }
     if (!profile) return 'https://via.placeholder.com/32';
     if (profile.avatarType === 'upload') {
       return profile.avatarData;
