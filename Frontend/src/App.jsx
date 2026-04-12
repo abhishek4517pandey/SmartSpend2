@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar.jsx";
-import Chatbot from "./components/Chatbot.jsx";import Home from "./pages/Home.jsx";import Dashboard from "./pages/Dashboard.jsx";
+import Chatbot from "./components/Chatbot.jsx";
+import HomeNew from "./pages/HomeNew.jsx";
+import Dashboard from "./pages/Dashboard.jsx";
 import Expenses from "./pages/Expenses.jsx";
 import Budget from "./pages/Budget.jsx";
 import SplitView from "./pages/SplitView.jsx";
@@ -28,7 +30,7 @@ const App = () => {
       <Navbar theme={theme} toggleTheme={toggleTheme} />
       <main className="main-content">
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<HomeNew />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/expenses" element={<Expenses />} />
           <Route path="/budget" element={<Budget />} />
