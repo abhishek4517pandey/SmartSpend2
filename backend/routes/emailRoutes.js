@@ -2,7 +2,7 @@ import express from "express";
 import { authMiddleware } from "../middleware/authMiddleware.js";
 import User from "../models/User.js";
 import Expense from "../models/Expense.js";
-import { sendReportEmail } from "../services/emailService.js";
+import { sendReportEmail, sendSplitNotificationEmail } from "../services/emailService.js";
 
 const router = express.Router();
 
@@ -153,6 +153,35 @@ router.put("/preferences", authMiddleware, async (req, res) => {
   } catch (error) {
     console.error("Error updating preferences:", error);
     res.status(500).json({ message: "Error updating preferences" });
+  }
+});
+
+/**
+ * POST /api/emails/send-split-notification
+ * Send split expense notification to participant
+ */
+router.post("/send-split-notification", async (req, res) => {
+  try {
+    const { email, personName, owedAmount, oweAmount, net, status } = req.body;
+
+    if (!email || !personName) {
+      return res.status(400).json({ message: "Email and person name are required" });
+    }
+
+    await sendSplitNotificationEmail(
+      email,
+      personName,
+      owedAmount || 0,
+      oweAmount || 0,
+      net || 0,
+      status || "settled"
+    );
+
+    res.json({ success: true, message: `Notification sent successfully to ${email}` });
+  } catch (error) {
+    console.error("Error sending split notification:", error.message);
+    const errorMsg = error.message || "Error sending split notification";
+    res.status(500).json({ message: `Failed to send notification: ${errorMsg}` });
   }
 });
 

@@ -358,9 +358,11 @@ body {
   max-width: 420px;
   padding: 1.5rem;
   border-radius: 2rem;
-  background: linear-gradient(180deg, rgba(14, 165, 233, 0.12), rgba(34, 197, 94, 0.08));
-  border: 1px solid rgba(59, 130, 246, 0.12);
-  box-shadow: 0 18px 70px rgba(15, 23, 42, 0.12);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(34, 197, 94, 0.12));
+  border: 1.5px solid rgba(34, 197, 94, 0.35);
+  box-shadow: 0 20px 60px rgba(34, 197, 94, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
+  transition: all 0.3s ease;
 }
 
 .visual-topbar {
@@ -1754,6 +1756,34 @@ textarea {
 .table td:last-child {
   display: flex;
   gap: 0.75rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.delete-split-btn {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #ef4444;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.delete-split-btn:hover {
+  background: #ef4444;
+  color: white;
+  border-color: #ef4444;
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.delete-modal .modal-header {
+  background: linear-gradient(135deg, #ef4444, #dc2626) !important;
 }
 
 /* Modal */
@@ -1796,6 +1826,256 @@ textarea {
   justify-content: flex-end;
   gap: 1rem;
   margin-top: 2rem;
+}
+
+/* Modal Content Styles */
+.modal-content {
+  background: var(--surface);
+  border-radius: 1.25rem;
+  padding: 0;
+  width: 100%;
+  max-width: 500px;
+  border: 1.5px solid var(--border-color);
+  box-shadow: 0 12px 48px var(--shadow);
+  overflow: hidden;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-header {
+  background: linear-gradient(135deg, var(--accent), #0ea5e9);
+  color: white;
+  padding: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: none;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.close-btn {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  transition: all 0.2s ease;
+}
+
+.close-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: rotate(90deg);
+}
+
+.modal-body {
+  padding: 2rem;
+  color: var(--text-primary);
+}
+
+.modal-footer {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  padding: 1.5rem 2rem;
+  background: var(--bg-tertiary);
+  border-top: 1px solid var(--border-color);
+}
+
+/* Payment Modal */
+.payment-modal .modal-header {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+}
+
+.modal-subtitle {
+  color: var(--text-secondary);
+  margin: 0 0 1rem 0;
+  font-size: 0.95rem;
+}
+
+.big-amount {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--accent);
+  margin: 1rem 0;
+  font-family: "Courier New", monospace;
+}
+
+.amount-input-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--bg-tertiary);
+  padding: 0.75rem 1rem;
+  border-radius: 0.6rem;
+  border: 1px solid var(--border-color);
+}
+
+.currency-symbol {
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.amount-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-size: 1rem;
+  outline: none;
+  font-family: "Courier New", monospace;
+  font-weight: 600;
+}
+
+/* Notify Modal */
+.notify-modal .modal-header {
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+}
+
+.person-info-section {
+  background: var(--bg-tertiary);
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--border-color);
+}
+
+.person-info-section h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.3rem;
+  color: var(--text-primary);
+}
+
+.email-display {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.balance-info-section {
+  background: var(--bg-tertiary);
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--border-color);
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  font-size: 1rem;
+}
+
+.info-row:not(:last-child) {
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+
+.info-row .label {
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.info-row .value {
+  font-weight: 700;
+  font-family: "Courier New", monospace;
+  font-size: 1.1rem;
+}
+
+.info-row.owes .value {
+  color: #ef4444;
+}
+
+.info-row.owed .value {
+  color: #10b981;
+}
+
+.notification-info {
+  background: rgba(139, 92, 246, 0.1);
+  border-left: 3px solid #8b5cf6;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  margin: 1rem 0;
+}
+
+/* Modal Buttons */
+.btn-cancel {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.6rem;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+}
+
+.btn-cancel:hover {
+  background: var(--border-color);
+}
+
+.btn-confirm {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.6rem;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+}
+
+.btn-confirm:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.btn-send {
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.6rem;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+}
+
+.btn-send:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
 }
 
 /* Responsive */
@@ -2025,6 +2305,12 @@ textarea {
   transform: translateY(-4px);
 }
 
+.category-chart-container,
+.monthly-chart-container {
+  filter: none !important;
+  backdrop-filter: none !important;
+}
+
 .category-chart-container h3,
 .monthly-chart-container h3 {
   font-size: 1.1rem;
@@ -2037,10 +2323,16 @@ textarea {
 .chart-wrapper {
   position: relative;
   height: 320px;
+  filter: none !important;
+  backdrop-filter: none !important;
 }
 
 .chart-wrapper canvas {
   max-height: 320px;
+  filter: none !important;
+  will-change: auto;
+  image-rendering: crisp-edges;
+  image-rendering: pixelated;
 }
 
 .chart-empty {
@@ -2854,11 +3146,53 @@ textarea {
   box-shadow: 0 8px 24px var(--shadow);
 }
 
-.balance-card h3 {
-  font-size: 1.1rem;
-  font-weight: 600;
+.balance-card.interactive-card {
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(135deg, var(--surface) 0%, rgba(59, 130, 246, 0.05) 100%);
+  border: 2px solid var(--border-color);
+  position: relative;
+  overflow: hidden;
+}
+
+.balance-card.interactive-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.card-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  position: relative;
+  z-index: 1;
+}
+
+.card-header .person-name {
+  font-size: 1.2rem;
+  font-weight: 700;
   color: var(--text-primary);
-  margin: 0 0 1rem 0;
+  margin: 0;
+}
+
+.email-tag {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  background: rgba(59, 130, 246, 0.1);
+  padding: 0.4rem 0.8rem;
+  border-radius: 0.5rem;
+  width: fit-content;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .balance-amount {
@@ -2866,6 +3200,8 @@ textarea {
   font-weight: 700;
   font-family: "Courier New", monospace;
   margin-bottom: 0.5rem;
+  position: relative;
+  z-index: 1;
 }
 
 .owed-amount {
@@ -2883,6 +3219,54 @@ textarea {
 .balance-details {
   font-size: 0.85rem;
   color: var(--text-muted);
+  margin-bottom: 1rem;
+  position: relative;
+  z-index: 1;
+}
+
+.card-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: auto;
+  position: relative;
+  z-index: 1;
+}
+
+.action-btn {
+  flex: 1;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 0.7rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.paid-btn {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: white;
+  border: none;
+}
+
+.paid-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.notify-btn {
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  color: white;
+  border: none;
+}
+
+.notify-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
 }
 
 .balance-owes {
@@ -3008,6 +3392,27 @@ textarea {
   gap: 0.75rem;
 }
 
+.participant-item.participant-with-email {
+  align-items: flex-start;
+  background: var(--bg-tertiary);
+  padding: 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border-color);
+  transition: all 0.3s ease;
+}
+
+.participant-item.participant-with-email:hover {
+  border-color: var(--accent);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+}
+
+.participant-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+}
+
 .participant-input {
   flex: 1;
   padding: 0.75rem 1rem;
@@ -3023,6 +3428,18 @@ textarea {
   outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+}
+
+.participant-input.name-input::placeholder {
+  color: var(--text-muted);
+}
+
+.participant-input.email-input {
+  font-size: 0.85rem;
+}
+
+.participant-input.email-input::placeholder {
+  color: var(--text-muted);
 }
 
 .remove-participant-btn {

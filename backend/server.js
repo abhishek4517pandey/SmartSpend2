@@ -11,12 +11,10 @@ import splitRoutes from "./routes/splitRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import emailRoutes from "./routes/emailRoutes.js";
 
-// Load env
 dotenv.config();
 
 const app = express();
 
-// ✅ CORS Configuration (Improved)
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:3000",
@@ -37,10 +35,7 @@ app.use(
 
 app.use(express.json());
 
-// ✅ DB connection
 connectDB();
-
-// ✅ Routes
 app.get("/", (req, res) => {
   res.json({ message: "SmartSpend API running", status: "ok" });
 });
@@ -56,7 +51,6 @@ app.use("/api/budget", budgetRoutes);
 app.use("/api/split-expenses", splitRoutes);
 app.use("/api/emails", emailRoutes);
 
-// ✅ Error handler
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(err.status || 500).json({
@@ -68,14 +62,12 @@ app.use((err, req, res, next) => {
   });
 });
 
-// ✅ 404 handler
 app.use("*", (req, res) => {
   res.status(404).json({ success: false, message: "Route not found" });
 });
 
 const PORT = process.env.PORT || 5000;
 
-// ✅ Start server ONLY if not on Vercel
 if (!process.env.VERCEL) {
   app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
@@ -89,5 +81,4 @@ if (!process.env.VERCEL) {
   });
 }
 
-// ✅ IMPORTANT: Always export (needed for Vercel)
 export default app;

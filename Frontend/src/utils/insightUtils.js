@@ -1,18 +1,8 @@
-/**
- * Calculate total spending for a given set of expenses
- * @param {Array} expenses - Array of expense objects
- * @returns {number} - Total spending amount
- */
 export const calculateTotalSpending = (expenses) => {
   if (!Array.isArray(expenses) || expenses.length === 0) return 0;
   return expenses.reduce((sum, expense) => sum + (expense.amount || 0), 0);
 };
 
-/**
- * Find the top spending category
- * @param {Array} expenses - Array of expense objects
- * @returns {Object} - Object with category name and amount
- */
 export const getTopCategory = (expenses) => {
   if (!Array.isArray(expenses) || expenses.length === 0) {
     return { category: null, amount: 0 };
@@ -36,11 +26,6 @@ export const getTopCategory = (expenses) => {
   return { category: topCategory, amount: maxAmount };
 };
 
-/**
- * Get the current month's spending
- * @param {Array} expenses - Array of expense objects
- * @returns {number} - Total spending for current month
- */
 export const getCurrentMonthSpending = (expenses) => {
   if (!Array.isArray(expenses) || expenses.length === 0) return 0;
 
@@ -59,11 +44,6 @@ export const getCurrentMonthSpending = (expenses) => {
     .reduce((sum, expense) => sum + (expense.amount || 0), 0);
 };
 
-/**
- * Get the previous month's spending
- * @param {Array} expenses - Array of expense objects
- * @returns {number} - Total spending for previous month
- */
 export const getPreviousMonthSpending = (expenses) => {
   if (!Array.isArray(expenses) || expenses.length === 0) return 0;
 
@@ -87,12 +67,6 @@ export const getPreviousMonthSpending = (expenses) => {
     .reduce((sum, expense) => sum + (expense.amount || 0), 0);
 };
 
-/**
- * Calculate percentage change between two values
- * @param {number} current - Current month spending
- * @param {number} previous - Previous month spending
- * @returns {Object} - Object with percentage, direction, and status
- */
 export const calculateMonthlyComparison = (current, previous) => {
   if (previous === 0) {
     return {
@@ -118,11 +92,6 @@ export const calculateMonthlyComparison = (current, previous) => {
   };
 };
 
-/**
- * Get top 3 spending categories
- * @param {Array} expenses - Array of expense objects
- * @returns {Array} - Array of top 3 categories with amounts
- */
 export const getTopCategories = (expenses, limit = 3) => {
   if (!Array.isArray(expenses) || expenses.length === 0) return [];
 
@@ -138,11 +107,6 @@ export const getTopCategories = (expenses, limit = 3) => {
     .slice(0, limit);
 };
 
-/**
- * Generate spending insights
- * @param {Array} expenses - Array of expense objects
- * @returns {Object} - Object containing various insights
- */
 export const generateInsights = (expenses) => {
   const totalSpending = calculateTotalSpending(expenses);
   const currentMonth = getCurrentMonthSpending(expenses);
@@ -167,11 +131,6 @@ export const generateInsights = (expenses) => {
   };
 };
 
-/**
- * Format currency for display
- * @param {number} amount - Amount to format
- * @returns {string} - Formatted currency string
- */
 export const formatCurrency = (amount) => {
   return `₹${Number(amount).toLocaleString("en-IN", {
     minimumFractionDigits: 0,

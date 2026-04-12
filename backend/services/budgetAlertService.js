@@ -3,11 +3,6 @@ import Expense from "../models/Expense.js";
 import User from "../models/User.js";
 import { sendBudgetAlertEmail } from "./emailService.js";
 
-/**
- * Check budget usage and send alerts if thresholds are crossed
- * @param {string} userId - User ID
- * @returns {Promise<object>} Result of alert checking
- */
 export const checkBudgetAlerts = async (userId) => {
   try {
     const user = await User.findById(userId);
@@ -17,10 +12,9 @@ export const checkBudgetAlerts = async (userId) => {
 
     // Get current month and year
     const now = new Date();
-    const currentMonth = now.getMonth() + 1; // 1-12
+    const currentMonth = now.getMonth() + 1;
     const currentYear = now.getFullYear();
 
-    // Fetch budget for current month
     const budget = await Budget.findOne({
       userId: userId,
       month: currentMonth,
@@ -49,12 +43,10 @@ export const checkBudgetAlerts = async (userId) => {
 
     const alerts = [];
 
-    // Check if user wants budget alerts
     if (!user.notifications.budgetAlerts) {
       return { success: true, message: "Budget alerts disabled by user" };
     }
 
-    // 50% threshold alert
     if (percentageUsed >= 50 && percentageUsed < 80 && !budget.alert50Sent && user.notifications.budgetThreshold50) {
       try {
         await sendBudgetAlertEmail(user.email, user.name, 50, totalSpent, budgetLimit);
@@ -65,7 +57,6 @@ export const checkBudgetAlerts = async (userId) => {
       }
     }
 
-    // 80% threshold alert
     if (percentageUsed >= 80 && !budget.alert80Sent && user.notifications.budgetThreshold80) {
       try {
         await sendBudgetAlertEmail(user.email, user.name, Math.min(percentageUsed, 100), totalSpent, budgetLimit);
@@ -76,7 +67,6 @@ export const checkBudgetAlerts = async (userId) => {
       }
     }
 
-    // Save budget with updated alert flags
     if (alerts.length > 0) {
       await budget.save();
     }
@@ -94,12 +84,6 @@ export const checkBudgetAlerts = async (userId) => {
   }
 };
 
-/**
- * Check category budget alerts
- * @param {string} userId - User ID
- * @param {string} category - Expense category
- * @returns {Promise<object>} Result of category alert checking
- */
 export const checkCategoryBudgetAlerts = async (userId, category) => {
   try {
     const user = await User.findById(userId);

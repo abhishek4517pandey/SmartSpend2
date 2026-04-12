@@ -61,10 +61,6 @@ router.post("/login", async (req, res) => {
   }
 });
 
-/**
- * POST /api/auth/google
- * Google OAuth login/register
- */
 router.post("/google", async (req, res) => {
   try {
     const { name, email, profilePicture, googleId } = req.body;
@@ -73,11 +69,9 @@ router.post("/google", async (req, res) => {
       return res.status(400).json({ message: "Email and googleId are required" });
     }
 
-    // Check if user exists
     let user = await User.findOne({ email });
 
     if (user) {
-      // Update googleId if not set
       if (!user.googleId) {
         user.googleId = googleId;
         user.authProvider = "google";
@@ -87,7 +81,6 @@ router.post("/google", async (req, res) => {
         await user.save();
       }
     } else {
-      // Create new user
       user = new User({
         name,
         email,

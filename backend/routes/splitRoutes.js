@@ -49,12 +49,17 @@ router.post("/", async (req, res) => {
 
     const sharePerPerson = totalAmount / participants.length;
 
+    const participantsData = Array.isArray(req.body.participantsData)
+      ? req.body.participantsData.filter(p => p?.name?.trim() && p?.email?.trim())
+      : [];
+
     const split = new SplitExpense({
       description,
       totalAmount,
       date,
       paidBy,
       participants,
+      participantsData,
       sharePerPerson,
       // Backward compatibility
       paidByOld: paidBy === "Student A" ? "A" : paidBy === "Student B" ? "B" : null,
@@ -66,6 +71,64 @@ router.post("/", async (req, res) => {
   } catch (err) {
     console.error("Error creating split expense:", err);
     res.status(500).json({ message: "Error creating split expense" });
+  }
+});
+
+// DELETE delete split expense
+router.delete("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const deleted = await SplitExpense.findByIdAndDelete(id);
+    
+    if (!deleted) {
+      return res.status(404).json({ message: "Split expense not found" });
+    }
+
+    res.json({ message: "Split expense deleted successfully", deleted });
+  } catch (err) {
+    console.error("Error deleting split expense:", err);
+    res.status(500).json({ message: "Error deleting split expense" });
+  }
+});
+
+// POST record payment for split
+router.post("/:id/payment", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { from, to, amount } = req.body;
+
+    if (!from || !to || !amount) {
+      return res.status(400).json({ message: "from, to, and amount are required" });
+    }
+
+    const paidAmount = Number(amount);
+    if (isNaN(paidAmount) || paidAmount <= 0) {
+      return res.status(400).json({ message: "Amount must be a valid number greater than zero" });
+    }
+
+    const split = await SplitExpense.findById(id);
+    if (!split) {
+      return res.status(404).json({ message: "Split expense not found" });
+    }
+
+    // Add payment record
+    if (!Array.isArray(split.payments)) {
+      split.payments = [];
+    }
+
+    split.payments.push({
+      from: String(from).trim(),
+      to: String(to).trim(),
+      amount: paidAmount,
+      date: new Date()
+    });
+
+    const updated = await split.save();
+    res.json({ success: true, message: "Payment recorded successfully", split: updated });
+  } catch (err) {
+    console.error("Error recording payment:", err);
+    res.status(500).json({ message: "Error recording payment" });
   }
 });
 

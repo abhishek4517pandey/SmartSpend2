@@ -4,9 +4,6 @@ import Expense from "../models/Expense.js";
 import Budget from "../models/Budget.js";
 import { sendMonthlyReportEmail } from "./emailService.js";
 
-/**
- * Initialize cron jobs for automated tasks
- */
 export const initializeCronJobs = () => {
   // Run at 00:01 on the 1st day of every month
   // Cron format: minute hour day month dayOfWeek
@@ -25,9 +22,6 @@ export const initializeCronJobs = () => {
   return { monthlyReportJob, resetBudgetAlertsJob };
 };
 
-/**
- * Send monthly reports to all users
- */
 const sendMonthlyReports = async () => {
   try {
     const users = await User.find({ "notifications.monthlyReport": true });
@@ -35,18 +29,16 @@ const sendMonthlyReports = async () => {
 
     // Get previous month data
     const now = new Date();
-    const previousMonth = now.getMonth(); // 0-11, so current month - 1
-    const previousMonthNumber = previousMonth === 0 ? 12 : previousMonth; // 1-12
+    const previousMonth = now.getMonth();
+    const previousMonthNumber = previousMonth === 0 ? 12 : previousMonth;
     const year = previousMonth === 0 ? now.getFullYear() - 1 : now.getFullYear();
 
-    // Get start and end dates of previous month
     const startOfMonth = new Date(year, previousMonth, 1);
     const endOfMonth = new Date(year, previousMonth + 1, 0);
     endOfMonth.setHours(23, 59, 59, 999);
 
     for (const user of users) {
       try {
-        // Fetch expenses for previous month
         const expenses = await Expense.find({
           userId: user._id,
           date: {
@@ -56,7 +48,6 @@ const sendMonthlyReports = async () => {
         });
 
         if (expenses.length > 0) {
-          // Send email
           await sendMonthlyReportEmail(
             user.email,
             user.name,
@@ -65,7 +56,6 @@ const sendMonthlyReports = async () => {
             year
           );
 
-          // Update lastMonthlyReportSent
           user.lastMonthlyReportSent = new Date();
           await user.save();
 
@@ -84,16 +74,12 @@ const sendMonthlyReports = async () => {
   }
 };
 
-/**
- * Reset budget alert flags for new month
- */
 const resetBudgetAlerts = async () => {
   try {
     const now = new Date();
     const currentMonth = now.getMonth() + 1;
     const currentYear = now.getFullYear();
 
-    // Find all budgets for current month
     const budgets = await Budget.updateMany(
       {
         month: currentMonth,
@@ -115,9 +101,6 @@ const resetBudgetAlerts = async () => {
   }
 };
 
-/**
- * Manually trigger monthly reports (for testing)
- */
 export const manuallyTriggerMonthlyReports = async () => {
   console.log("🚀 Manually triggering monthly reports...");
   await sendMonthlyReports();

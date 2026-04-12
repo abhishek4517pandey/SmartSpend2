@@ -33,7 +33,6 @@ const budgetSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Simplest approach: one active budget (latest)
 const Budget = mongoose.model("Budget", budgetSchema);
 
 export default Budget;

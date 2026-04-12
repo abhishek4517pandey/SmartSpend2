@@ -1,9 +1,4 @@
-﻿/**
- * Calculate balances for split expenses among multiple participants
- * @param {Array} splits - Array of split expense objects
- * @returns {Object} - Balance information
- */
-export const calculateBalances = (splits) => {
+﻿export const calculateBalances = (splits) => {
   const validSplits = Array.isArray(splits) ? splits : [];
   const balances = {};
   const allParticipants = new Set();
@@ -34,6 +29,22 @@ export const calculateBalances = (splits) => {
 
       balances[person][payer] = (balances[person][payer] || 0) + sharePerPerson;
       balances[payer][person] = (balances[payer][person] || 0) - sharePerPerson;
+    });
+
+    // Subtract payments from balances
+    const payments = Array.isArray(split.payments) ? split.payments : [];
+    payments.forEach((payment) => {
+      const { from, to, amount } = payment;
+      const paymentAmount = Number(amount) || 0;
+      
+      if (paymentAmount > 0 && from && to) {
+        // Adjust the balance: reduce what 'from' owes to 'to'
+        balances[from] = balances[from] || {};
+        balances[to] = balances[to] || {};
+        
+        balances[from][to] = (balances[from][to] || 0) - paymentAmount;
+        balances[to][from] = (balances[to][from] || 0) + paymentAmount;
+      }
     });
   });
 

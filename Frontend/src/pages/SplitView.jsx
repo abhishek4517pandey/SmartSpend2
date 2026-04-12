@@ -9,14 +9,28 @@ const SplitView = () => {
     totalAmount: "",
     date: new Date().toISOString().slice(0, 10),
     paidBy: "",
-    participants: ["", ""],
-    newParticipant: "",
+    participants: [{ name: "", email: "" }, { name: "", email: "" }],
+    newParticipant: { name: "", email: "" },
   });
+  const [paymentModal, setPaymentModal] = useState({ isOpen: false, person: null, amount: "" });
+  const [notifyModal, setNotifyModal] = useState({ isOpen: false, person: null, email: "" });
+  const [deleteModal, setDeleteModal] = useState({ isOpen: false, splitId: null, splitDesc: "" });
+  const [participantsData, setParticipantsData] = useState({});
 
   const fetchSplits = async () => {
     try {
       const res = await api.get("/split-expenses");
       setSplits(Array.isArray(res.data) ? res.data : []);
+      
+      const participantMap = {};
+      res.data?.forEach(split => {
+        if (Array.isArray(split.participantsData)) {
+          split.participantsData.forEach(p => {
+            participantMap[p.name] = p.email;
+          });
+        }
+      });
+      setParticipantsData(participantMap);
     } catch (err) {
       console.error(err);
       setSplits([]);
@@ -34,7 +48,7 @@ const SplitView = () => {
   );
 
   const safeParticipants = Array.isArray(form.participants) ? form.participants : [];
-  const validParticipants = safeParticipants.filter((p) => p?.trim());
+  const validParticipants = safeParticipants.filter((p) => p?.name?.trim()).map(p => p.name);
   const shareCount = validParticipants.length;
   const shareAmount = shareCount > 0 && Number(form.totalAmount) > 0
     ? Number(form.totalAmount) / shareCount
@@ -45,22 +59,24 @@ const SplitView = () => {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleParticipantChange = (index, value) => {
+  const handleParticipantChange = (index, field, value) => {
     setForm((prev) => {
       const participants = Array.isArray(prev.participants) ? [...prev.participants] : [];
-      participants[index] = value;
+      if (participants[index]) {
+        participants[index][field] = value;
+      }
       return { ...prev, participants };
     });
   };
 
   const addParticipant = () => {
-    if (form.newParticipant?.trim()) {
+    if (form.newParticipant?.name?.trim() && form.newParticipant?.email?.trim()) {
       setForm((prev) => {
         const participants = Array.isArray(prev.participants) ? [...prev.participants] : [];
         return {
           ...prev,
-          participants: [...participants, prev.newParticipant.trim()],
-          newParticipant: "",
+          participants: [...participants, { ...form.newParticipant }],
+          newParticipant: { name: "", email: "" },
         };
       });
     }
@@ -69,11 +85,11 @@ const SplitView = () => {
   const removeParticipant = (index) => {
     setForm((prev) => {
       const participants = Array.isArray(prev.participants) ? prev.participants.filter((_, i) => i !== index) : [];
-      const removedParticipant = Array.isArray(prev.participants) ? prev.participants[index] : "";
+      const removedName = Array.isArray(prev.participants) ? prev.participants[index]?.name : "";
       return {
         ...prev,
         participants,
-        paidBy: prev.paidBy === removedParticipant ? "" : prev.paidBy,
+        paidBy: prev.paidBy === removedName ? "" : prev.paidBy,
       };
     });
   };
@@ -102,12 +118,14 @@ const SplitView = () => {
     }
 
     try {
+      const participantsData = safeParticipants.filter(p => p?.name?.trim());
       const payload = {
         description: form.description.trim(),
         totalAmount,
         date: form.date,
         paidBy: String(form.paidBy).trim(),
         participants: validParticipantsList,
+        participantsData: participantsData,
       };
 
       console.log("Saving split expense:", payload);
@@ -120,8 +138,8 @@ const SplitView = () => {
         totalAmount: "",
         date: new Date().toISOString().slice(0, 10),
         paidBy: "",
-        participants: ["", ""],
-        newParticipant: "",
+        participants: [{ name: "", email: "" }, { name: "", email: "" }],
+        newParticipant: { name: "", email: "" },
       });
       fetchSplits();
     } catch (err) {
@@ -136,6 +154,110 @@ const SplitView = () => {
   const totalAmount = Number(balanceData.totalAmount) || 0;
 
   const getSummary = (person) => individualSummaries[person] || { owes: 0, owed: 0, net: 0, status: "settled" };
+
+  const openPaymentModal = (person, owedAmount) => {
+    setPaymentModal({ isOpen: true, person, amount: "", owedAmount });
+  };
+
+  const closePaymentModal = () => {
+    setPaymentModal({ isOpen: false, person: null, amount: "", owedAmount: 0 });
+  };
+
+  const handlePayment = async () => {
+    const paidAmount = Number(paymentModal.amount);
+    if (isNaN(paidAmount) || paidAmount <= 0) {
+      alert("Please enter a valid amount");
+      return;
+    }
+
+    try {
+      // Find the split where the person owes money
+      // Typically, the person owes to the one who paid
+      const relevantSplits = splits.filter(s => 
+        s.participants.includes(paymentModal.person) && s.participants.length > 0
+      );
+
+      if (relevantSplits.length === 0) {
+        alert("No splits found for this person");
+        return;
+      }
+
+      // Record payment in the first relevant split
+      const splitId = relevantSplits[0]._id;
+      const paidByPerson = relevantSplits[0].paidBy;
+
+      await api.post(`/split-expenses/${splitId}/payment`, {
+        from: paymentModal.person,
+        to: paidByPerson,
+        amount: paidAmount
+      });
+
+      alert(`Payment of ${formatCurrency(paidAmount)} recorded successfully!`);
+      closePaymentModal();
+      fetchSplits(); // Refresh data to update balances
+    } catch (err) {
+      console.error(err);
+      alert("Error recording payment: " + (err.response?.data?.message || err.message));
+    }
+  };
+
+  const openNotifyModal = (person) => {
+    const email = participantsData[person] || "";
+    const summary = getSummary(person);
+    setNotifyModal({ isOpen: true, person, email, summary });
+  };
+
+  const closeNotifyModal = () => {
+    setNotifyModal({ isOpen: false, person: null, email: "", summary: null });
+  };
+
+  const openDeleteModal = (splitId, splitDesc) => {
+    setDeleteModal({ isOpen: true, splitId, splitDesc });
+  };
+
+  const closeDeleteModal = () => {
+    setDeleteModal({ isOpen: false, splitId: null, splitDesc: "" });
+  };
+
+  const handleDeleteSplit = async () => {
+    if (!deleteModal.splitId) return;
+
+    try {
+      await api.delete(`/split-expenses/${deleteModal.splitId}`);
+      alert(`Split expense "${deleteModal.splitDesc}" deleted successfully!`);
+      closeDeleteModal();
+      fetchSplits();
+    } catch (err) {
+      console.error(err);
+      alert("Error deleting split expense");
+    }
+  };
+
+  const handleSendNotification = async () => {
+    if (!notifyModal.email?.trim()) {
+      alert("Email address not found for this person");
+      return;
+    }
+
+    try {
+      const summary = getSummary(notifyModal.person);
+      const payload = {
+        personName: notifyModal.person,
+        email: notifyModal.email,
+        owedAmount: Math.abs(summary.owes),
+        oweAmount: Math.abs(summary.owed),
+        net: summary.net,
+        status: summary.status,
+      };
+
+      await api.post("/emails/send-split-notification", payload);
+      alert(`Notification sent to ${notifyModal.email}!`);
+      closeNotifyModal();
+    } catch (err) {
+      console.error(err);
+      alert("Error sending notification");
+    }
+  };
 
   return (
     <div className="page">
@@ -156,22 +278,47 @@ const SplitView = () => {
             <div className="balance-cards">
               {summaryParticipants.map((person) => {
                 const summary = getSummary(person);
+                const email = participantsData[person] || "No email";
                 return (
-                  <div key={person} className={`balance-card balance-${summary.status}`}>
-                    <h3>{person}</h3>
+                  <div key={person} className={`balance-card balance-${summary.status} interactive-card`}>
+                    <div className="card-header">
+                      <h3 className="person-name">{person}</h3>
+                      <span className="email-tag">{email}</span>
+                    </div>
+                    
                     <div className="balance-amount">
                       {summary.net > 0 ? (
-                        <span className="owed-amount">+{formatCurrency(summary.net)}</span>
+                        <span className="owed-amount">➕ {formatCurrency(summary.net)}</span>
                       ) : summary.net < 0 ? (
-                        <span className="owes-amount">{formatCurrency(summary.net)}</span>
+                        <span className="owes-amount">➖ {formatCurrency(Math.abs(summary.net))}</span>
                       ) : (
-                        <span className="settled-amount">0</span>
+                        <span className="settled-amount">✓ Settled</span>
                       )}
                     </div>
+                    
                     <div className="balance-details">
                       <small>
                         Owes: {formatCurrency(summary.owes)} | Owed: {formatCurrency(summary.owed)}
                       </small>
+                    </div>
+
+                    <div className="card-actions">
+                      {summary.net < 0 && (
+                        <button 
+                          className="action-btn paid-btn"
+                          onClick={() => openPaymentModal(person, Math.abs(summary.net))}
+                          title="Mark amount as paid"
+                        >
+                          💳 Mark Paid
+                        </button>
+                      )}
+                      <button 
+                        className="action-btn notify-btn"
+                        onClick={() => openNotifyModal(person)}
+                        title="Send notification email"
+                      >
+                        📧 Notify
+                      </button>
                     </div>
                   </div>
                 );
@@ -251,18 +398,27 @@ const SplitView = () => {
         </div>
 
         <div className="participants-section">
-          <h3>Participants</h3>
+          <h3>👥 Participants</h3>
 
           <div className="participants-list">
             {safeParticipants.map((participant, index) => (
-              <div key={index} className="participant-item">
-                <input
-                  type="text"
-                  value={participant}
-                  onChange={(e) => handleParticipantChange(index, e.target.value)}
-                  placeholder={`Person ${index + 1}`}
-                  className="participant-input"
-                />
+              <div key={index} className="participant-item participant-with-email">
+                <div className="participant-inputs">
+                  <input
+                    type="text"
+                    value={participant?.name || ""}
+                    onChange={(e) => handleParticipantChange(index, "name", e.target.value)}
+                    placeholder={`Person ${index + 1}`}
+                    className="participant-input name-input"
+                  />
+                  <input
+                    type="email"
+                    value={participant?.email || ""}
+                    onChange={(e) => handleParticipantChange(index, "email", e.target.value)}
+                    placeholder="Email address"
+                    className="participant-input email-input"
+                  />
+                </div>
                 {safeParticipants.length > 2 && (
                   <button
                     type="button"
@@ -277,18 +433,27 @@ const SplitView = () => {
           </div>
 
           <div className="add-participant-row">
-            <input
-              type="text"
-              value={form.newParticipant}
-              onChange={(e) => setForm((prev) => ({ ...prev, newParticipant: e.target.value }))}
-              placeholder="Add another person..."
-              className="add-participant-input"
-            />
+            <div className="add-participant-inputs">
+              <input
+                type="text"
+                value={form.newParticipant?.name || ""}
+                onChange={(e) => setForm((prev) => ({ ...prev, newParticipant: { ...prev.newParticipant, name: e.target.value } }))}
+                placeholder="Person name..."
+                className="add-participant-input name-input"
+              />
+              <input
+                type="email"
+                value={form.newParticipant?.email || ""}
+                onChange={(e) => setForm((prev) => ({ ...prev, newParticipant: { ...prev.newParticipant, email: e.target.value } }))}
+                placeholder="Email address..."
+                className="add-participant-input email-input"
+              />
+            </div>
             <button
               type="button"
               className="add-participant-btn"
               onClick={addParticipant}
-              disabled={!form.newParticipant?.trim()}
+              disabled={!form.newParticipant?.name?.trim() || !form.newParticipant?.email?.trim()}
             >
               + Add
             </button>
@@ -336,6 +501,7 @@ const SplitView = () => {
               <th>Total Amount</th>
               <th>Participants</th>
               <th>Share per Person</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -347,10 +513,146 @@ const SplitView = () => {
                 <td>{formatCurrency(s.totalAmount || 0)}</td>
                 <td>{Array.isArray(s.participants) ? s.participants.filter((p) => p?.trim()).join(", ") : "-"}</td>
                 <td>{formatCurrency(s.sharePerPerson || s.sharePerStudent || 0)}</td>
+                <td>
+                  <button 
+                    className="delete-split-btn"
+                    onClick={() => openDeleteModal(s._id, s.description)}
+                    title="Delete this split"
+                  >
+                    🗑️
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
+      )}
+
+      {paymentModal.isOpen && (
+        <div className="modal-overlay" onClick={closePaymentModal}>
+          <div className="modal-content payment-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>💳 Mark Payment</h2>
+              <button className="close-btn" onClick={closePaymentModal}>✕</button>
+            </div>
+            <div className="modal-body">
+              <p className="modal-subtitle">{paymentModal.person} owes:</p>
+              <p className="big-amount">{formatCurrency(paymentModal.owedAmount)}</p>
+              
+              <div className="form-group">
+                <label>Amount Paid:</label>
+                <div className="amount-input-group">
+                  <span className="currency-symbol">₹</span>
+                  <input
+                    type="number"
+                    value={paymentModal.amount}
+                    onChange={(e) => setPaymentModal({ ...paymentModal, amount: e.target.value })}
+                    placeholder="Enter amount paid"
+                    min="0"
+                    className="amount-input"
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button className="btn-cancel" onClick={closePaymentModal}>Cancel</button>
+              <button className="btn-confirm" onClick={handlePayment}>Confirm Payment</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {notifyModal.isOpen && (
+        <div className="modal-overlay" onClick={closeNotifyModal}>
+          <div className="modal-content notify-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>📧 Send Notification</h2>
+              <button className="close-btn" onClick={closeNotifyModal}>✕</button>
+            </div>
+            <div className="modal-body">
+              <div className="person-info-section">
+                <h3>{notifyModal.person}</h3>
+                <p className="email-display">✉️ {notifyModal.email}</p>
+              </div>
+
+              <div className="balance-info-section">
+                <div className="info-row owes">
+                  <span className="label">Owes:</span>
+                  <span className="value">{formatCurrency(notifyModal.summary?.owes || 0)}</span>
+                </div>
+                <div className="info-row owed">
+                  <span className="label">Owed:</span>
+                  <span className="value">{formatCurrency(notifyModal.summary?.owed || 0)}</span>
+                </div>
+              </div>
+
+              <p className="notification-info">
+                A notification email will be sent to {notifyModal.person} with their balance details.
+              </p>
+            </div>
+            <div className="modal-footer">
+              <button className="btn-cancel" onClick={closeNotifyModal}>Cancel</button>
+              <button className="btn-send" onClick={handleSendNotification}>Send Notification</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {deleteModal.isOpen && (
+        <div className="modal-overlay" onClick={closeDeleteModal}>
+          <div className="modal-content delete-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header" style={{ background: "linear-gradient(135deg, #ef4444, #dc2626)" }}>
+              <h2>🗑️ Delete Split</h2>
+              <button className="close-btn" onClick={closeDeleteModal}>✕</button>
+            </div>
+            <div className="modal-body">
+              <p style={{ fontSize: "1.1rem", marginBottom: "1rem" }}>
+                Are you sure you want to delete this shared expense?
+              </p>
+              <div style={{ 
+                background: "var(--bg-tertiary)", 
+                padding: "1rem", 
+                borderRadius: "0.75rem", 
+                border: "1px solid var(--border-color)",
+                marginBottom: "1.5rem"
+              }}>
+                <p style={{ margin: "0.5rem 0", color: "var(--text-secondary)", fontSize: "0.9rem" }}>
+                  <strong>Description:</strong> {deleteModal.splitDesc}
+                </p>
+              </div>
+              <p style={{ color: "var(--text-secondary)", fontSize: "0.95rem" }}>
+                This action cannot be undone. All participants' balances will be recalculated.
+              </p>
+            </div>
+            <div className="modal-footer">
+              <button className="btn-cancel" onClick={closeDeleteModal}>Cancel</button>
+              <button 
+                style={{
+                  background: "linear-gradient(135deg, #ef4444, #dc2626)",
+                  color: "white",
+                  border: "none",
+                  padding: "0.75rem 1.5rem",
+                  borderRadius: "0.6rem",
+                  cursor: "pointer",
+                  fontWeight: "600",
+                  fontSize: "0.95rem",
+                  transition: "all 0.2s ease"
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = "translateY(-2px)";
+                  e.target.style.boxShadow = "0 4px 12px rgba(239, 68, 68, 0.3)";
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = "none";
+                  e.target.style.boxShadow = "none";
+                }}
+                onClick={handleDeleteSplit}
+              >
+                Delete Permanently
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

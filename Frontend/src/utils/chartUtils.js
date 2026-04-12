@@ -1,8 +1,3 @@
-/**
- * Group expenses by category
- * @param {Array} expenses - Array of expense objects
- * @returns {Object} - Object with categories as keys and amounts as values
- */
 export const groupByCategory = (expenses) => {
   const grouped = {};
   expenses.forEach((expense) => {
@@ -12,11 +7,6 @@ export const groupByCategory = (expenses) => {
   return grouped;
 };
 
-/**
- * Group expenses by month
- * @param {Array} expenses - Array of expense objects
- * @returns {Object} - Object with months as keys and amounts as values
- */
 export const groupByMonth = (expenses) => {
   const grouped = {};
   expenses.forEach((expense) => {
@@ -31,11 +21,6 @@ export const groupByMonth = (expenses) => {
   return grouped;
 };
 
-/**
- * Get category distribution data for Pie chart
- * @param {Array} expenses - Array of expense objects
- * @returns {Object} - Chart.js compatible data object
- */
 export const getCategoryChartData = (expenses, isDarkMode = true) => {
   const data = groupByCategory(expenses);
   const categories = Object.keys(data);
@@ -43,16 +28,16 @@ export const getCategoryChartData = (expenses, isDarkMode = true) => {
 
   // Color palette
   const colors = [
-    "#22c55e", // Green
-    "#3b82f6", // Blue
-    "#f59e0b", // Amber
-    "#ef4444", // Red
-    "#8b5cf6", // Violet
-    "#06b6d4", // Cyan
-    "#ec4899", // Pink
-    "#14b8a6", // Teal
-    "#f97316", // Orange
-    "#6366f1", // Indigo
+    "#22c55e",
+    "#3b82f6",
+    "#f59e0b",
+    "#ef4444",
+    "#8b5cf6",
+    "#06b6d4",
+    "#ec4899",
+    "#14b8a6",
+    "#f97316",
+    "#6366f1",
   ];
 
   return {
@@ -70,11 +55,6 @@ export const getCategoryChartData = (expenses, isDarkMode = true) => {
   };
 };
 
-/**
- * Get chart options for category pie chart
- * @param {Boolean} isDarkMode - Whether dark mode is enabled
- * @returns {Object} - Chart.js options object
- */
 export const getCategoryChartOptions = (isDarkMode = true) => {
   const textColor = isDarkMode ? "#e5e7eb" : "#1e293b";
   const gridColor = isDarkMode ? "#334155" : "#cbd5e1";
@@ -117,11 +97,6 @@ export const getCategoryChartOptions = (isDarkMode = true) => {
   };
 };
 
-/**
- * Get monthly expenses data for Bar chart
- * @param {Array} expenses - Array of expense objects
- * @returns {Object} - Chart.js compatible data object
- */
 export const getMonthlyChartData = (expenses, isDarkMode = true) => {
   const data = groupByMonth(expenses);
   const sortedMonths = Object.keys(data).sort();
@@ -144,11 +119,6 @@ export const getMonthlyChartData = (expenses, isDarkMode = true) => {
   };
 };
 
-/**
- * Get chart options for monthly bar chart
- * @param {Boolean} isDarkMode - Whether dark mode is enabled
- * @returns {Object} - Chart.js options object
- */
 export const getMonthlyChartOptions = (isDarkMode = true) => {
   const textColor = isDarkMode ? "#e5e7eb" : "#1e293b";
   const gridColor = isDarkMode ? "#334155" : "#cbd5e1";

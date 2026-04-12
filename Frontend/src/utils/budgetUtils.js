@@ -1,19 +1,8 @@
-/**
- * Calculate budget usage percentage
- * @param {number} spent - Amount spent
- * @param {number} budget - Total budget
- * @returns {number} - Usage percentage
- */
 export const calculateBudgetUsage = (spent, budget) => {
   if (!budget || budget === 0) return 0;
   return Math.round((spent / budget) * 100);
 };
 
-/**
- * Get alert status based on budget usage
- * @param {number} percentage - Budget usage percentage
- * @returns {Object} - Alert status object
- */
 export const getBudgetAlertStatus = (percentage) => {
   if (percentage >= 100) {
     return {
@@ -54,24 +43,12 @@ export const getBudgetAlertStatus = (percentage) => {
   }
 };
 
-/**
- * Get remaining budget amount
- * @param {number} budget - Total budget
- * @param {number} spent - Amount spent
- * @returns {number} - Remaining budget
- */
 export const getRemainingBudget = (budget, spent) => {
   if (!budget) return 0;
   const remaining = budget - spent;
   return remaining > 0 ? remaining : 0;
 };
 
-/**
- * Format budget data for display
- * @param {number} spent - Amount spent
- * @param {number} budget - Total budget
- * @returns {Object} - Formatted budget data
- */
 export const formatBudgetData = (spent, budget) => {
   const percentage = calculateBudgetUsage(spent, budget);
   const remaining = getRemainingBudget(budget, spent);
