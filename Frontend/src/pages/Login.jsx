@@ -53,7 +53,6 @@ const Login = () => {
   const handleGoogleError = () => {
     setError("Google login failed. Please try again.");
   };
-
   return (
     <div className="page auth-page">
       <div className="auth-grid">

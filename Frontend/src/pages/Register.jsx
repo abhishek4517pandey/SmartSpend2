@@ -53,7 +53,6 @@ const Register = () => {
   const handleGoogleError = () => {
     setError("Google registration failed. Please try again.");
   };
-
   return (
     <div className="page auth-page">
       <div className="auth-grid">

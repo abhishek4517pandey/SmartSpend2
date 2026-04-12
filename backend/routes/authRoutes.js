@@ -113,7 +113,6 @@ router.post("/google", async (req, res) => {
     res.status(500).json({ message: "Error with Google authentication" });
   }
 });
-
 router.get("/me", authMiddleware, async (req, res) => {
   res.json({ user: req.user });
 });
