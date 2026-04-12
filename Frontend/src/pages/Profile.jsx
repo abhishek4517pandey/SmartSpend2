@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../api/axios";
 import { AuthContext } from "../context/AuthContext.jsx";
+import StreakComponent from "../components/StreakComponent.jsx";
 
 const PREBUILT_AVATARS = [
   { id: '1', url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=avatar1' },
@@ -283,6 +284,8 @@ const Profile = () => {
           </label>
         </div>
       </div>
+
+      <StreakComponent />
 
       <button className="primary-button" onClick={handleSave}>
         Save Profile

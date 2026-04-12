@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import api from "../api/axios";
+import SavingGoals from "../components/SavingGoals";
 
 const CATEGORIES = [
   "Food & Dining",
@@ -244,6 +245,9 @@ const Budget = () => {
       <button className="primary-button" onClick={handleSave}>
         Save Budget
       </button>
+
+      {/* Saving Goals Section */}
+      {budget && <SavingGoals budget={budget} />}
     </div>
   );
 };

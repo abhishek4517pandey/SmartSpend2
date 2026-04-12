@@ -8,27 +8,17 @@
     "dev": "nodemon server.js"
   },
   "dependencies": {
-<<<<<<< HEAD
     "@react-oauth/google": "^0.13.5",
-=======
->>>>>>> 4174bffb (mail feature added)
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.6",
     "dotenv": "^16.6.1",
     "express": "^4.22.1",
-<<<<<<< HEAD
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^8.23.0",
     "node-cron": "^4.2.1",
     "nodemailer": "^8.0.5",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0"
-=======
-    "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.23.0",
-    "node-cron": "^4.2.1",
-    "nodemailer": "^8.0.5"
->>>>>>> 4174bffb (mail feature added)
   },
   "devDependencies": {
     "nodemon": "^3.1.14"

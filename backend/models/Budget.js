@@ -7,6 +7,17 @@ const categoryBudgetSchema = new mongoose.Schema({
   alertSent80: { type: Boolean, default: false }
 });
 
+const savingGoalSchema = new mongoose.Schema({
+  _id: { type: mongoose.Schema.Types.ObjectId, auto: true },
+  goalName: String,
+  targetAmount: Number,
+  currentAmount: { type: Number, default: 0 },
+  icon: { type: String, default: "🎯" },
+  category: { type: String, default: "Other" },
+  priority: { type: String, enum: ["Low", "Medium", "High"], default: "Medium" },
+  createdAt: { type: Date, default: Date.now }
+});
+
 const budgetSchema = new mongoose.Schema(
   {
     userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
@@ -14,6 +25,7 @@ const budgetSchema = new mongoose.Schema(
     year: Number,
     totalBudget: Number,
     categoryBudgets: [categoryBudgetSchema],
+    savingGoals: [savingGoalSchema],
     alert50Sent: { type: Boolean, default: false },
     alert80Sent: { type: Boolean, default: false }
   },

@@ -2,6 +2,7 @@ import express from "express";
 import Expense from "../models/Expense.js";
 import { authMiddleware } from "../middleware/authMiddleware.js";
 import { checkBudgetAlerts, checkCategoryBudgetAlerts } from "../services/budgetAlertService.js";
+import { updateDailyStreak } from "../services/streakService.js";
 
 const router = express.Router();
 
@@ -37,12 +38,16 @@ router.post("/", authMiddleware, async (req, res) => {
     const saved = await expense.save();
     console.log("POST /expenses: Created expense with id", saved._id, "for user", req.user.id);
     
+    // Update daily streak
+    const streakData = await updateDailyStreak(req.user.id);
+    
     // Check budget alerts after adding expense
     const budgetCheckResult = await checkBudgetAlerts(req.user.id);
     const categoryCheckResult = await checkCategoryBudgetAlerts(req.user.id, category);
     
     res.status(201).json({ 
       expense: saved,
+      streak: streakData,
       budgetCheck: budgetCheckResult,
       categoryCheck: categoryCheckResult
     });
@@ -98,6 +103,18 @@ router.delete("/:id", authMiddleware, async (req, res) => {
   } catch (err) {
     console.error("Error deleting expense:", err);
     res.status(400).json({ message: "Error deleting expense" });
+  }
+});
+
+// GET user's daily streak data
+router.get("/streak/data", authMiddleware, async (req, res) => {
+  try {
+    const { getStreakData } = await import("../services/streakService.js");
+    const streakData = await getStreakData(req.user.id);
+    res.json(streakData);
+  } catch (err) {
+    console.error("Error fetching streak data:", err);
+    res.status(400).json({ message: "Error fetching streak data" });
   }
 });
 

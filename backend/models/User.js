@@ -14,7 +14,12 @@ const userSchema = new mongoose.Schema(
       budgetThreshold50: { type: Boolean, default: true },
       budgetThreshold80: { type: Boolean, default: true }
     },
-    lastMonthlyReportSent: { type: Date, default: null }
+    lastMonthlyReportSent: { type: Date, default: null },
+    // Daily Streak Fields
+    currentStreak: { type: Number, default: 0 },
+    maxStreak: { type: Number, default: 0 },
+    lastStreakUpdateDate: { type: Date, default: null },
+    streakDates: [{ type: Date }] // Array of dates when user added expenses
   },
   { timestamps: true }
 );
