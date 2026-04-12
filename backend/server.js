@@ -11,24 +11,42 @@ import splitRoutes from "./routes/splitRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import emailRoutes from "./routes/emailRoutes.js";
 
-// Load environment variables from .env
+// Load env
 dotenv.config();
-
-// DEBUG: print MONGO_URI to make sure .env is working
-console.log("MONGO_URI from .env:", process.env.MONGO_URI);
 
 const app = express();
 
-// Middleware
-app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+// ✅ CORS Configuration (Improved)
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:3000",
+  process.env.FRONTEND_URL
+].filter(Boolean);
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error("CORS not allowed"));
+    },
+    credentials: true,
+  })
+);
+
 app.use(express.json());
 
-// Connect to MongoDB
+// ✅ DB connection
 connectDB();
 
-// Routes
+// ✅ Routes
 app.get("/", (req, res) => {
-  res.send("SmartSpend API running");
+  res.json({ message: "SmartSpend API running", status: "ok" });
+});
+
+app.get("/api/health", (req, res) => {
+  res.json({ status: "healthy", time: new Date().toISOString() });
 });
 
 app.use("/api/auth", authRoutes);
@@ -38,10 +56,38 @@ app.use("/api/budget", budgetRoutes);
 app.use("/api/split-expenses", splitRoutes);
 app.use("/api/emails", emailRoutes);
 
-// Start server
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-  // Initialize cron jobs
-  initializeCronJobs();
+// ✅ Error handler
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(err.status || 500).json({
+    success: false,
+    message:
+      process.env.NODE_ENV === "production"
+        ? "Internal Server Error"
+        : err.message,
+  });
 });
+
+// ✅ 404 handler
+app.use("*", (req, res) => {
+  res.status(404).json({ success: false, message: "Route not found" });
+});
+
+const PORT = process.env.PORT || 5000;
+
+// ✅ Start server ONLY if not on Vercel
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`🌍 Mode: ${process.env.NODE_ENV || "development"}`);
+
+    try {
+      initializeCronJobs();
+    } catch (err) {
+      console.warn("Cron jobs error:", err.message);
+    }
+  });
+}
+
+// ✅ IMPORTANT: Always export (needed for Vercel)
+export default app;
