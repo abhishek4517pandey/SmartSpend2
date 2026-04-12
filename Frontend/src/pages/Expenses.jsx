@@ -5,6 +5,7 @@ import AdvancedFilters from "../components/AdvancedFilters.jsx";
 import SendReportModal from "../components/SendReportModal.jsx";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
+import "../styles/ExpensesAdvanced.css";
 
 const Expenses = () => {
   const [expenses, setExpenses] = useState([]);
@@ -15,6 +16,7 @@ const Expenses = () => {
   const [updatingExpenseId, setUpdatingExpenseId] = useState(null);
   const [deletingExpenseId, setDeletingExpenseId] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [advancedFilters, setAdvancedFilters] = useState({
     dateFrom: "",
     dateTo: "",
@@ -313,14 +315,33 @@ const Expenses = () => {
             ))}
           </select>
         </div>
+
+        {/* Advanced Filter Button */}
+        <button
+          className="btn-advanced-filters"
+          onClick={() => setShowAdvancedFilters(true)}
+        >
+          <span className="filter-icon">⚙️</span>
+          Advanced Filters
+          {Object.values(advancedFilters).some(val => val) && (
+            <span className="filter-badge">
+              {Object.values(advancedFilters).filter(val => val).length}
+            </span>
+          )}
+        </button>
       </div>
 
-      <AdvancedFilters
-        filters={advancedFilters}
-        onFiltersChange={setAdvancedFilters}
-        categories={categories}
-        paymentMethods={paymentMethods}
-      />
+      {/* Advanced Filters Modal */}
+      {showAdvancedFilters && (
+        <AdvancedFilters
+          isOpen={showAdvancedFilters}
+          onClose={() => setShowAdvancedFilters(false)}
+          filters={advancedFilters}
+          onFiltersChange={setAdvancedFilters}
+          categories={categories}
+          paymentMethods={paymentMethods}
+        />
+      )}
 
       {loading ? (
         <p>Loading expenses...</p>

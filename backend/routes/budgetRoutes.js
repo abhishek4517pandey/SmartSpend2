@@ -19,14 +19,14 @@ router.get("/", authMiddleware, async (req, res) => {
 // POST create new budget for authenticated user
 router.post("/", authMiddleware, async (req, res) => {
   try {
-    const { month, year, totalBudget, categoryBudgets } = req.body;
+    const { month, year, totalBudget } = req.body;
 
     const budget = new Budget({
       userId: req.user._id,
       month,
       year,
       totalBudget,
-      categoryBudgets,
+      passiveIncomes: [],
       savingGoals: []
     });
 
@@ -35,6 +35,58 @@ router.post("/", authMiddleware, async (req, res) => {
   } catch (err) {
     console.error("Error saving budget:", err);
     res.status(400).json({ message: "Error saving budget" });
+  }
+});
+
+// POST add passive income
+router.post("/passive-income", authMiddleware, async (req, res) => {
+  try {
+    const { source, amount, description } = req.body;
+
+    let budget = await Budget.findOne({ userId: req.user._id }).sort({ createdAt: -1 });
+
+    if (!budget) {
+      return res.status(404).json({ message: "Budget not found. Create a budget first." });
+    }
+
+    const newIncome = {
+      _id: new mongoose.Types.ObjectId(),
+      source,
+      amount: Number(amount),
+      description: description || "",
+      addedDate: new Date()
+    };
+
+    budget.passiveIncomes.push(newIncome);
+    const updated = await budget.save();
+
+    res.status(201).json(updated);
+  } catch (err) {
+    console.error("Error adding passive income:", err);
+    res.status(400).json({ message: "Error adding passive income" });
+  }
+});
+
+// DELETE passive income
+router.delete("/passive-income/:incomeId", authMiddleware, async (req, res) => {
+  try {
+    const { incomeId } = req.params;
+
+    const budget = await Budget.findOne({ userId: req.user._id }).sort({ createdAt: -1 });
+
+    if (!budget) {
+      return res.status(404).json({ message: "Budget not found" });
+    }
+
+    budget.passiveIncomes = budget.passiveIncomes.filter(
+      inc => inc._id.toString() !== incomeId
+    );
+
+    const updated = await budget.save();
+    res.json(updated);
+  } catch (err) {
+    console.error("Error deleting passive income:", err);
+    res.status(400).json({ message: "Error deleting passive income" });
   }
 });
 

@@ -1,10 +1,11 @@
 import mongoose from "mongoose";
 
-const categoryBudgetSchema = new mongoose.Schema({
-  category: String,
+const passiveIncomeSchema = new mongoose.Schema({
+  _id: { type: mongoose.Schema.Types.ObjectId, auto: true },
+  source: String,
   amount: Number,
-  alertSent50: { type: Boolean, default: false },
-  alertSent80: { type: Boolean, default: false }
+  addedDate: { type: Date, default: Date.now },
+  description: { type: String, default: "" }
 });
 
 const savingGoalSchema = new mongoose.Schema({
@@ -24,7 +25,7 @@ const budgetSchema = new mongoose.Schema(
     month: Number, // 1-12
     year: Number,
     totalBudget: Number,
-    categoryBudgets: [categoryBudgetSchema],
+    passiveIncomes: [passiveIncomeSchema],
     savingGoals: [savingGoalSchema],
     alert50Sent: { type: Boolean, default: false },
     alert80Sent: { type: Boolean, default: false }
