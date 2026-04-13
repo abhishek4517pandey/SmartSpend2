@@ -182,14 +182,18 @@
 /* ========== FILTER ITEMS ========== */
 .filter-grid-2 {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .filter-item {
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .filter-item label {
@@ -203,6 +207,7 @@
 .filter-input,
 .filter-select-large,
 .filter-input-large {
+  width: 100%;
   padding: 0.9rem 1rem;
   border: 1.5px solid var(--border-color);
   border-radius: 0.8rem;
@@ -211,6 +216,7 @@
   font-size: 0.95rem;
   font-family: inherit;
   transition: all 0.3s ease;
+  box-sizing: border-box;
 }
 
 [data-theme="light"] .filter-input,
@@ -238,6 +244,8 @@
   position: relative;
   display: flex;
   align-items: center;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .currency {
@@ -248,7 +256,9 @@
 }
 
 .input-with-currency .filter-input {
+  width: 100%;
   padding-left: 2.2rem;
+  box-sizing: border-box;
 }
 
 /* ========== PAYMENT METHOD BUTTONS ========== */
@@ -479,6 +489,10 @@
   }
 
   .payment-buttons {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-grid-2 {
     grid-template-columns: 1fr;
   }
 

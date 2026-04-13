@@ -22,6 +22,7 @@ const splitExpenseSchema = new mongoose.Schema(
         date: { type: Date, default: Date.now }
       }
     ], // Track payments made towards settling the split
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     // Keep backward compatibility
     paidByOld: { type: String, enum: ["A", "B"] }, // For migration
     sharePerStudent: { type: Number } // For migration

@@ -78,19 +78,28 @@ const StreakComponent = () => {
     return "";
   };
 
+  const getMotivationMessage = (streak) => {
+    if (streak === 0) return "Start tracking today 💪";
+    if (streak <= 3) return "Good start! Keep going 🔥";
+    if (streak <= 7) return "Great consistency! 🚀";
+    return "You're unstoppable! 💯";
+  };
+
   return (
-    <div className="streak-container">
+    <div className="streak-container bg-slate-50 dark:bg-slate-900 shadow-lg border border-gray-200 rounded-xl p-6">
       <div className="streak-header">
-        <div className="flame-icon">🔥</div>
         <div className="streak-info">
           <h3 className="streak-title">Your Daily Streak</h3>
-          <p className="streak-subtitle">{streakData.message}</p>
+          <p className="streak-subtitle">{getMotivationMessage(streakData.currentStreak)}</p>
         </div>
       </div>
 
       <div className="streak-stats">
-        <div className="stat-box">
-          <div className="stat-value">{streakData.currentStreak}</div>
+        <div className="stat-box rounded-xl shadow-md">
+          <div className="stat-value flex items-center justify-center gap-2 text-3xl font-bold">
+            <span>🔥</span>
+            <span>{streakData.currentStreak}</span>
+          </div>
           <div className="stat-label">Current Streak</div>
         </div>
         <div className="stat-box">
@@ -106,24 +115,18 @@ const StreakComponent = () => {
             <div key={index} className="day-cell">
               <div className="day-letter">{day.day}</div>
               <div
-                className={`day-number ${day.isActive ? "active" : ""} ${
-                  day.isToday ? "today" : ""
-                }`}
+                className={`day-number w-12 h-12 rounded-md flex items-center justify-center text-sm font-semibold ${
+                  day.isActive
+                    ? "bg-green-500 text-white border border-transparent"
+                    : "bg-gray-100 text-gray-700 border border-transparent"
+                } ${day.isToday ? "border-2 border-green-500" : ""}`}
               >
-                {day.isActive && <span className="check-mark">✓</span>}
-                {!day.isActive && <span>{day.date}</span>}
+                {day.isActive ? <span>✓</span> : <span>{day.date}</span>}
               </div>
             </div>
           ))}
         </div>
       </div>
-
-      {streakData.currentStreak > 0 && (
-        <div className="streak-message">
-          <span className="fire-emojis">{getFireEmojis(streakData.currentStreak)}</span>
-          <p>Amazing! Keep tracking your expenses daily!</p>
-        </div>
-      )}
 
       <button 
         className="refresh-streak-btn"

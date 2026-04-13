@@ -1,10 +1,11 @@
 import express from "express";
 import SplitExpense from "../models/SplitExpense.js";
+import { authMiddleware } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-// GET all split expenses
-router.get("/", async (req, res) => {
+// GET all split expenses for the logged-in user
+router.get("/", authMiddleware, async (req, res) => {
   try {
     const splits = await SplitExpense.find().sort({ date: -1 });
     res.json(splits);
@@ -15,7 +16,7 @@ router.get("/", async (req, res) => {
 });
 
 // POST create split expense
-router.post("/", async (req, res) => {
+router.post("/", authMiddleware, async (req, res) => {
   try {
     console.log("Split expense request body:", req.body);
 
@@ -61,6 +62,7 @@ router.post("/", async (req, res) => {
       participants,
       participantsData,
       sharePerPerson,
+      userId: req.user.id,
       // Backward compatibility
       paidByOld: paidBy === "Student A" ? "A" : paidBy === "Student B" ? "B" : null,
       sharePerStudent: participants.length === 2 ? sharePerPerson : null,
@@ -75,11 +77,11 @@ router.post("/", async (req, res) => {
 });
 
 // DELETE delete split expense
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
 
-    const deleted = await SplitExpense.findByIdAndDelete(id);
+    const deleted = await SplitExpense.findOneAndDelete({ _id: id, userId: req.user.id });
     
     if (!deleted) {
       return res.status(404).json({ message: "Split expense not found" });
@@ -93,7 +95,7 @@ router.delete("/:id", async (req, res) => {
 });
 
 // POST record payment for split
-router.post("/:id/payment", async (req, res) => {
+router.post("/:id/payment", authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
     const { from, to, amount } = req.body;
@@ -107,7 +109,7 @@ router.post("/:id/payment", async (req, res) => {
       return res.status(400).json({ message: "Amount must be a valid number greater than zero" });
     }
 
-    const split = await SplitExpense.findById(id);
+    const split = await SplitExpense.findOne({ _id: id, userId: req.user.id });
     if (!split) {
       return res.status(404).json({ message: "Split expense not found" });
     }

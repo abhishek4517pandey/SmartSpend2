@@ -181,63 +181,70 @@ const Profile = () => {
       </div>
 
       <div className="form-grid">
-        <div className="form-group">
+        <div className="form-group mb-4">
           <label>Name</label>
           <input
+            className="h-12 w-full px-4 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400"
             name="name"
             value={form.name}
             onChange={handleChange}
             placeholder="Your name"
           />
         </div>
-        <div className="form-group">
+        <div className="form-group mb-4">
           <label>Email</label>
           <input
+            className="h-12 w-full px-4 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400"
             name="email"
             value={form.email}
             onChange={handleChange}
             placeholder="you@example.com"
           />
         </div>
-        <div className="form-group">
+        <div className="form-group mb-4">
           <label>Phone</label>
           <input
+            className="h-12 w-full px-4 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400"
             name="phone"
             value={form.phone}
             onChange={handleChange}
             placeholder="Mobile number"
           />
         </div>
-        <div className="form-group">
+        <div className="form-group mb-4">
           <label>College / University</label>
           <input
+            className="h-12 w-full px-4 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400"
             name="college"
             value={form.college}
             onChange={handleChange}
             placeholder="Your college"
           />
         </div>
-        <div className="form-group">
+        <div className="form-group mb-4">
           <label>Course</label>
           <input
+            className="h-12 w-full px-4 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400"
             name="course"
             value={form.course}
             onChange={handleChange}
             placeholder="e.g., B.Tech CSE"
           />
         </div>
-        <div className="form-group">
+        <div className="form-group mb-4">
           <label>Semester / Year</label>
           <input
+            className="h-12 w-full px-4 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400"
             name="semester"
             value={form.semester}
             onChange={handleChange}
             placeholder="e.g., 7th semester"
           />
         </div>
-        <div className="form-group">
+        <div className="form-group mb-4">
           <label>Default Monthly Budget (₹)</label>
           <input
+            className="h-12 w-full px-4 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400"
             type="number"
             name="monthlyBudget"
             value={form.monthlyBudget}
@@ -287,9 +294,11 @@ const Profile = () => {
 
       <StreakComponent />
 
-      <button className="primary-button" onClick={handleSave}>
-        Save Profile
-      </button>
+      <div className="profile-action-row">
+        <button className="primary-button save-profile-button" onClick={handleSave}>
+          Save Profile
+        </button>
+      </div>
 
       {showAvatarModal && (
         <div className="modal-overlay" onClick={() => setShowAvatarModal(false)}>

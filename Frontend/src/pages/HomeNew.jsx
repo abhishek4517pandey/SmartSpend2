@@ -89,20 +89,20 @@ const HomeNew = () => {
         variants={containerVariants}
       >
         <motion.div className="hero-content" variants={slideVariants}>
-          <motion.h1 className="hero-title" variants={itemVariants}>
+          <motion.h1 className="hero-title text-gray-800 dark:text-white" variants={itemVariants}>
             Take Control of{" "}
             <span className="gradient-text">Your Money</span>
           </motion.h1>
 
-          <motion.p className="hero-subtitle" variants={itemVariants}>
+          <motion.p className="hero-subtitle text-gray-700 dark:text-gray-200" variants={itemVariants}>
             Smart expense tracking with AI insights, beautiful dashboards, and real-time budget control. Your finances, simplified.
           </motion.p>
 
           <motion.div className="hero-buttons" variants={containerVariants}>
             <motion.div variants={itemVariants}>
-              <Link to={user ? "/dashboard" : "/register"} className="btn-primary btn-lg">
+              <Link to={user ? "/dashboard" : "/register"} className="btn-accent btn-lg text-blue-500 dark:text-blue-400 font-semibold underline hover:text-blue-300">
                 <span>Get Started</span>
-                <span className="btn-icon">→</span>
+                <span className="btn-icon text-blue-500 dark:text-blue-400">→</span>
               </Link>
             </motion.div>
             <motion.div variants={itemVariants}>
@@ -449,9 +449,9 @@ const HomeNew = () => {
             Join thousands of users who are taking control of their money with SmartSpend.
           </motion.p>
           <motion.div variants={itemVariants}>
-            <Link to={user ? "/dashboard" : "/register"} className="btn-primary btn-large">
+            <Link to={user ? "/dashboard" : "/register"} className="btn-accent btn-large text-blue-500 dark:text-blue-400 font-semibold underline hover:text-blue-300">
               <span>Start Your Journey</span>
-              <span className="btn-arrow">→</span>
+              <span className="btn-arrow text-blue-500 dark:text-blue-400">→</span>
             </Link>
           </motion.div>
         </motion.div>
